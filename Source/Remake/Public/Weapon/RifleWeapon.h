@@ -42,4 +42,5 @@ private:
 	FVector2D YawOffsetOutputRange = FVector2D(0, 1);
 
 	int i=1;
+	int j=2;
 };
