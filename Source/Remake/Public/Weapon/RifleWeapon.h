@@ -40,4 +40,6 @@ private:
 	FVector2D YawOffsetInputRange = FVector2D(0, 100);
 	FVector2D PitchOffsetOutputRange = FVector2D(0, 1);
 	FVector2D YawOffsetOutputRange = FVector2D(0, 1);
+
+	int i=1;
 };

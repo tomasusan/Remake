@@ -70,5 +70,8 @@ Saved/*
 Intermediate/*
 Plugins/*/Intermediate/*
 
+#RiderLink
+Plugins/Developer/RiderLink
+
 # Cache files for the editor to use
 DerivedDataCache/*
