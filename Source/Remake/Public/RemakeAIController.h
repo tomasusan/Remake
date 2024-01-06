@@ -17,9 +17,10 @@ class REMAKE_API ARemakeAIController : public AAIController
 
 	ARemakeAIController();
 protected:
-	virtual void OnPossess(APawn* InPawn) override;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIComponent")
 	URemakeAIPerceptionComponent* AIPerceptionComponent;
+	
+	virtual void OnPossess(APawn* InPawn) override;
+	virtual void Tick(float DeltaSeconds) override;
 	
 };

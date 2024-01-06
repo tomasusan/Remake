@@ -21,3 +21,10 @@ void ARemakeAIController::OnPossess(APawn* InPawn)
 		RunBehaviorTree(AICharacter->BehaviorTreeAsset);
 	}
 }
+
+void ARemakeAIController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	const auto AimActor = AIPerceptionComponent->GetClosestActor();
+	SetFocus(AimActor);
+}
