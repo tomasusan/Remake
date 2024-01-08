@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "RemakeCoreTypes.h"
 #include "GameFramework/Character.h"
 #include "BaseCharacter.generated.h"
 
@@ -42,14 +43,16 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Name")
 	FName CharacterName;
 	
+	void GainToken(const int32 GainingAmount);
+	bool Pay(const int32 Cost);
+	void ReceiveShopItem(const FShopItemData& ShopItemData);
 	void Offset(float PitchOffset, float YawOffset);
 
 	FOnReloadSignature OnReloadHandle;
-	
 
 protected:
 	virtual void BeginPlay() override;
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
 	UCameraComponent* CameraComponent;
 
@@ -74,11 +77,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FallDamage")
 	FVector2D FallDamage = FVector2D(10, 100);
 
-public:	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Token")
+	int32 MaxToken = 99999;
+
+public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-private://for function
+
+private: //for function
 	void MoveForward(float Amount);
 	void MoveRight(float Amount);
 	void LookUp(float Amount);
@@ -89,12 +96,14 @@ private://for function
 	void OnDeath();
 	void Fire();
 	void OnHealthChange(float Health) const;
-	
+	void SetToken(const int32 SetAmount) { CurrentToken = SetAmount; }
+
 	bool WantSprint = false;
 	bool IsMovingForward = false;
 	bool bCanMove = true;
-	
+
+	int32 CurrentToken = 0;
+
 	UFUNCTION()
 	void OnLand(const FHitResult& Hit);
-
 };

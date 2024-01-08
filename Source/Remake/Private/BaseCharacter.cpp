@@ -30,11 +30,10 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit)
 
 	HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthTextRenderComponent");
 	HealthTextComponent->SetupAttachment(GetRootComponent());
-	
+
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
 	WeaponComponent = CreateDefaultSubobject<UWeaponComponent>("WeaponComponent");
-	BackpackComponent =  CreateDefaultSubobject<UBackpackComponent>("BackpackComponent");
-	
+	BackpackComponent = CreateDefaultSubobject<UBackpackComponent>("BackpackComponent");
 }
 
 void ABaseCharacter::Offset(float PitchOffset, float YawOffset)
@@ -57,13 +56,15 @@ void ABaseCharacter::BeginPlay()
 
 	LandedDelegate.AddDynamic(this, &ABaseCharacter::OnLand);
 	OnReloadHandle.AddUObject(WeaponComponent, &UWeaponComponent::OnReload);
+
+	SetToken(100);
 }
 
 void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if(GetMovementComponent()->IsFalling())
+	if (GetMovementComponent()->IsFalling())
 	{
 		bCanMove = false;
 	}
@@ -137,7 +138,7 @@ float ABaseCharacter::GetMovementDirection() const
 
 void ABaseCharacter::OnJump()
 {
-	if(!bCanMove) return;
+	if (!bCanMove) return;
 	Super::Jump();
 	bWantJump = true;
 	bCanMove = false;
@@ -151,14 +152,14 @@ void ABaseCharacter::Land()
 
 void ABaseCharacter::OnDeath()
 {
-	if(!DeathAnim) return;
-	
+	if (!DeathAnim) return;
+
 	PlayAnimMontage(DeathAnim);
 	GetCharacterMovement()->DisableMovement();
 	SetLifeSpan(5);
 
 	if (Controller)
-		{
+	{
 		Controller->ChangeState(NAME_Spectating);
 	}
 
@@ -168,7 +169,6 @@ void ABaseCharacter::OnDeath()
 
 void ABaseCharacter::Fire()
 {
-	
 }
 
 
@@ -177,15 +177,34 @@ void ABaseCharacter::OnHealthChange(float Health) const
 	HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
 }
 
+void ABaseCharacter::GainToken(const int32 GainingAmount)
+{
+	CurrentToken = FMath::Clamp(CurrentToken + GainingAmount, CurrentToken, MaxToken);
+}
+
+bool ABaseCharacter::Pay(const int32 Cost)
+{
+	bool Success = true;
+	if (CurrentToken - Cost < 0) Success = false;
+	else
+	{
+		CurrentToken -= Cost;
+	}
+	return Success;
+}
+
+void ABaseCharacter::ReceiveShopItem(const FShopItemData& ShopItemData)
+{
+	BackpackComponent->ReceiveShopItem(ShopItemData);
+}
 
 
 void ABaseCharacter::OnLand(const FHitResult& Hit)
 {
 	const auto FallVelocityZ = FMath::Abs(GetCharacterMovement()->Velocity.Z);
 
-	if(FallVelocityZ < FallDamageVelocity.X) return;
+	if (FallVelocityZ < FallDamageVelocity.X) return;
 
 	const auto FinalDamage = FMath::GetMappedRangeValueClamped(FallDamageVelocity, FallDamage, FallVelocityZ);
 	TakeDamage(FinalDamage, FDamageEvent{}, nullptr, this);
-	
 }

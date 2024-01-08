@@ -13,9 +13,10 @@ class REMAKE_API UBackpackComponent : public UActorComponent
 public:	
 	UBackpackComponent();
 
-	void PickItem(FPickItemData ItemData);
-	void UseItem();
-	void ThrowItem();
+	void PickItem(const FPickItemData& ItemData);
+	void ReceiveShopItem(const FShopItemData& ShopItemData);
+	void UseItem(const int32 Index);
+	void ThrowItem(const int32 Index);
 	void SwitchBackpackOpen();
 	TArray<FPickItemData> GetBackpack() const {return Items;}
 
@@ -24,6 +25,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Widget")
 	TSubclassOf<UUserWidget> BackpackWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ItemData")
+	UDataTable* ItemDataTable;
 private:
 	TArray<FPickItemData> Items;
 
