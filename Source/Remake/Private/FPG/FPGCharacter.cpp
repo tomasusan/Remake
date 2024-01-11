@@ -143,7 +143,7 @@ void AFPGCharacter::OnStartHold()
 	Distance = (DetectedActorLocation - ActorLocation).Length();
 	UE_LOG(FPGCharacter, Warning, TEXT("Distance:%f"), Distance);
 	const FVector InitDirection = (DetectedActorLocation - ActorLocation).GetSafeNormal();
-
+	
 	bHolding = true;
 }
 
@@ -159,5 +159,6 @@ void AFPGCharacter::OnStopHold()
 		CurrentDetectActor->GetActorScale(),
 		GetActorForwardVector(),
 		Distance);
+	CurrentDetectActor->SetCanShowHighlight(false);
 	bHolding = false;
 }

@@ -53,7 +53,7 @@ void AFPGTransformActor::Tick(float DeltaTime)
 void AFPGTransformActor::OnDetected()
 {
 	//UE_LOG(TransformActorLog, Error, TEXT("On Detected!"));
-	if(!CanShowHighlight) return;
+	if (!CanShowHighlight) return;
 	ShowHighlight();
 }
 
@@ -85,6 +85,7 @@ void AFPGTransformActor::StartTest(AActor* OwningActor, FVector InitLocation, FV
 {
 	TestSphereRateStaticMesh = TestingSphere->GetComponentScale().X / StaticMeshComponent->GetComponentScale().X;
 	TestSphereRateCollision = TestingSphere->GetComponentScale().X / CollisionSphere->GetComponentScale().X;
+	TestSphereRateHighlight = TestingSphere->GetComponentScale().X / HighlightMeshComponent->GetComponentScale().X;
 	TestDirection = InitDirection;
 	OwningActorLocation = OwningActor->GetActorLocation();
 	TestLocation = InitLocation + InitDirection * BasicDistance;
@@ -106,9 +107,9 @@ void AFPGTransformActor::StopTest()
 		TestingSphere->SetWorldLocation(GetActorLocation());
 		StaticMeshComponent->SetWorldScale3D(TestingSphere->GetComponentScale() / TestSphereRateStaticMesh);
 		CollisionSphere->SetWorldScale3D(TestingSphere->GetComponentScale() / TestSphereRateCollision);
-		CanShowHighlight = false;
+		HighlightMeshComponent->SetWorldScale3D(TestingSphere->GetComponentScale() / TestSphereRateHighlight);
+		//CanShowHighlight = false;
 		SetSimulation();
-		
 	}
 }
 
@@ -143,4 +144,20 @@ void AFPGTransformActor::OnEndOverlap()
 {
 	UE_LOG(TransformActorLog, Warning, TEXT("End Overlap"));
 	CanTransform = true;
+}
+
+void AFPGTransformActor::AssembleAllComponent()
+{
+	const auto StaticMeshLocation = StaticMeshComponent->GetComponentLocation();
+	SetActorLocation(StaticMeshLocation);
+	HighlightMeshComponent->SetWorldLocation(StaticMeshLocation);
+	CollisionSphere->SetWorldLocation(StaticMeshLocation);
+	TestingSphere->SetWorldLocation(StaticMeshLocation);
+	SetCanShowHighlight(true);
+}
+
+void AFPGTransformActor::SetCanShowHighlight(const bool bCanShowHighlight)
+{
+	CanShowHighlight = bCanShowHighlight;
+	HighlightMeshComponent->SetVisibility(false);
 }

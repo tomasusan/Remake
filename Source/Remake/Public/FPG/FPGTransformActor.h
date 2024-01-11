@@ -75,6 +75,11 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetSimulation();
 
+	UFUNCTION(BlueprintCallable)
+	void AssembleAllComponent();
+
+	void SetCanShowHighlight(const bool bCanShowHighlight);
+
 private:
 	bool bUpdateLocation = false;
 
@@ -82,6 +87,7 @@ private:
 	float TestStep = 10;
 	float TestSphereRateStaticMesh;
 	float TestSphereRateCollision;
+	float TestSphereRateHighlight;
 	//FVector InitScale;
 	FVector BeginScale;
 	FVector OwningActorLocation;
@@ -92,4 +98,5 @@ private:
 	bool TestSphereOverlap = false;
 	bool CanShowHighlight = true;
 	FTimerHandle TestTimerHandle;
+	FTimerHandle Delay;
 };
