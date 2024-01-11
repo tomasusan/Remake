@@ -6,6 +6,8 @@
 #include "Camera/CameraComponent.h"
 #include "DrawDebugHelpers.h"
 
+DEFINE_LOG_CATEGORY_STATIC(FPGCharacter, All, All);
+
 // Sets default values
 AFPGCharacter::AFPGCharacter()
 {
@@ -30,12 +32,30 @@ void AFPGCharacter::Tick(float DeltaTime)
 	auto DetectedActor = DetectActor();
 	if (DetectedActor)
 	{
+		CurrentDetectActor = DetectedActor;
 		if (DetectedActor != LastDetectActor)
 		{
 			if (LastDetectActor)
 				LastDetectActor->HideHighlight();
-			LastDetectActor = DetectedActor;
+				LastDetectActor = DetectedActor;
 			DetectedActor->OnDetected();
+		}
+		if (bHolding && CurrentDetectActor)
+		{
+			FVector ViewLocation;
+			FRotator ViewRotation;
+			GetController()->GetPlayerViewPoint(ViewLocation, ViewRotation);
+
+			const auto DetectedActorDirection = ViewRotation.Vector();
+			DesiredTransform = CurrentDetectActor->GetActorTransform();
+			LastTransform = CurrentDetectActor->GetActorTransform();
+			
+			const FVector NewDetectedActorLocation = ViewLocation + DetectedActorDirection * Distance;
+			DesiredTransform.SetLocation(NewDetectedActorLocation);
+			CurrentDetectActor->UpdateLocation(DesiredTransform);
+
+			if (CurrentDetectActor->IsInCollision())
+				CurrentDetectActor->UpdateLocation(LastTransform);
 		}
 	}
 	else
@@ -45,6 +65,8 @@ void AFPGCharacter::Tick(float DeltaTime)
 			LastDetectActor->HideHighlight();
 			LastDetectActor = nullptr;
 		}
+		CurrentDetectActor = nullptr;
+		bHolding = false;
 	}
 }
 
@@ -58,6 +80,8 @@ void AFPGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		PlayerInputComponent->BindAxis("MoveRight", this, &AFPGCharacter::MoveRight);
 		PlayerInputComponent->BindAxis("LookUp", this, &AFPGCharacter::LookUp);
 		PlayerInputComponent->BindAxis("LookRight", this, &AFPGCharacter::LookRight);
+		PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFPGCharacter::OnStartHold);
+		PlayerInputComponent->BindAction("Fire", IE_Released, this, &AFPGCharacter::OnStopHold);
 	}
 }
 
@@ -107,4 +131,33 @@ AFPGTransformActor* AFPGCharacter::DetectActor()
 	}
 
 	return nullptr;
+}
+
+void AFPGCharacter::OnStartHold()
+{
+	if (!CurrentDetectActor) return;
+
+	const auto DetectedActorLocation = CurrentDetectActor->GetActorLocation();
+	const auto ActorLocation = GetActorLocation();
+
+	Distance = (DetectedActorLocation - ActorLocation).Length();
+	UE_LOG(FPGCharacter, Warning, TEXT("Distance:%f"), Distance);
+	const FVector InitDirection = (DetectedActorLocation - ActorLocation).GetSafeNormal();
+
+	bHolding = true;
+}
+
+void AFPGCharacter::OnStopHold()
+{
+	if (!CurrentDetectActor) return;
+	FVector ViewLocation;
+	FRotator ViewRotation;
+	GetController()->GetPlayerViewPoint(ViewLocation, ViewRotation);
+	CurrentDetectActor->StartTest(
+		this,
+		CurrentDetectActor->GetActorLocation(),
+		CurrentDetectActor->GetActorScale(),
+		GetActorForwardVector(),
+		Distance);
+	bHolding = false;
 }

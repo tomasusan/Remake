@@ -29,6 +29,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="DetectInfo")
 	float TraceDetectDistance = 100.0f;
 
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -42,6 +43,18 @@ private:
 	void LookUp(float Val);
 	void LookRight(float Val);
 	AFPGTransformActor* DetectActor();
+	void OnStartHold();
+	void OnStopHold();
+	
 	UPROPERTY()
 	AFPGTransformActor* LastDetectActor = nullptr;
+
+	UPROPERTY()
+	AFPGTransformActor* CurrentDetectActor = nullptr;
+
+	bool bHolding = false;
+	float Distance = 0.0f;
+
+	FTransform LastTransform;
+	FTransform DesiredTransform;
 };
