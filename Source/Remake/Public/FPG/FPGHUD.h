@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
+#include "FPGCharacter.h"
 #include "FPGHUD.generated.h"
-
 class UMainUserWidget;
 /**
  * 
@@ -20,8 +20,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Widget")
 	TSubclassOf<UMainUserWidget> MainUserWidgetClass;
 
+
 private:
 	UPROPERTY()
 	UMainUserWidget* MainUserWidget;
-	
+
+	UFUNCTION()
+	void OnShowItemHint() const;
+
+	UFUNCTION()
+	void OnHideItemHint() const;
+
+	UPROPERTY()
+	AFPGCharacter* Character;
 };

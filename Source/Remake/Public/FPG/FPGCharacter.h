@@ -4,11 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Serialization/ArchiveReplaceObjectRef.h"
+#include "RemakeCoreTypes.h"
 #include "FPGCharacter.generated.h"
 
+class ABaseInteractableActor;
 class UCameraComponent;
 class AFPGTransformActor;
+
+DECLARE_MULTICAST_DELEGATE(FShowDetectedItemInfoSigniture);
+DECLARE_MULTICAST_DELEGATE(FHideDetectedItemInfoSigniture);
 
 UCLASS()
 class REMAKE_API AFPGCharacter : public ACharacter
@@ -29,6 +33,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="DetectInfo")
 	float TraceDetectDistance = 100.0f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Component")
+	UStaticMeshComponent* Sphere;
+
 
 public:
 	// Called every frame
@@ -36,25 +43,53 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Detect", meta=(EditCondition="!bDetectTransformActor"))
+	bool bDetectInteractiveActor = true;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Detect", meta=(EditCondition="!bDetectInteractiveActor"))
+	bool bDetectTransformActor = false;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="CameraShake")
+	bool bCameraShack = true;
+
+	FBasicInteractableItemInfo ReportDetectedItemInfo();
+
+	FShowDetectedItemInfoSigniture OnShowDetectedItemInfo;
+	FHideDetectedItemInfoSigniture OnHideDetectedItemInfo;
 
 private:
 	void MoveForward(const float Val);
 	void MoveRight(const float Val);
 	void LookUp(float Val);
 	void LookRight(float Val);
-	AFPGTransformActor* DetectActor();
-	void OnStartHold();
-	void OnStopHold();
+	ABaseInteractableActor* DetectInteractableActor() const;
+	AFPGTransformActor* DetectTransformActor() const;
+	void OnStartHoldTransform();
+	void OnStopHoldTransform();
+	void HandleDetectInteractableActor();
+	void HandleDetectTransformActor();
+	void StartCameraShake();
+	void CameraShake();
 	
 	UPROPERTY()
-	AFPGTransformActor* LastDetectActor = nullptr;
+	AFPGTransformActor* LastDetectTransformActor = nullptr;
 
 	UPROPERTY()
-	AFPGTransformActor* CurrentDetectActor = nullptr;
+	AFPGTransformActor* CurrentDetectTransformActor = nullptr;
+
+	UPROPERTY()
+	ABaseInteractableActor* LastDetectInteractableActor = nullptr;
+
+	UPROPERTY()
+	ABaseInteractableActor* CurrentDetectInteractableActor = nullptr;
 
 	bool bHolding = false;
 	float Distance = 0.0f;
 
 	FTransform LastTransform;
 	FTransform DesiredTransform;
+	FTransform InitCameraTransform;
+
+	FTimerHandle CameraShakeTimerHandle;
 };

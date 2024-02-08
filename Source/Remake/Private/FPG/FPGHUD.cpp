@@ -13,4 +13,18 @@ void AFPGHUD::BeginPlay()
 	MainUserWidget = CreateWidget<UMainUserWidget>(GetWorld(), MainUserWidgetClass, "MainUserWidget");
 	checkf(MainUserWidget, TEXT("MainUserWidget Create Failed"));
 	MainUserWidget->AddToViewport();
+
+	Character = Cast<AFPGCharacter>(GetOwningPawn());
+	Character->OnShowDetectedItemInfo.AddUObject(this, &AFPGHUD::OnShowItemHint);
+	Character->OnHideDetectedItemInfo.AddUObject(this, &AFPGHUD::OnHideItemHint);
+}
+
+void AFPGHUD::OnShowItemHint() const
+{
+	MainUserWidget->ShowHint();
+}
+
+void AFPGHUD::OnHideItemHint() const
+{
+	MainUserWidget->HideHint();
 }

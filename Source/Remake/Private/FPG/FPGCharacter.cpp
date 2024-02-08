@@ -2,11 +2,12 @@
 
 
 #include "FPG/FPGCharacter.h"
+#include "BaseInteractableActor.h"
 #include "FPGTransformActor.h"
 #include "Camera/CameraComponent.h"
 #include "DrawDebugHelpers.h"
 
-DEFINE_LOG_CATEGORY_STATIC(FPGCharacter, All, All);
+DEFINE_LOG_CATEGORY_STATIC(FPGCharacterLog, All, All);
 
 // Sets default values
 AFPGCharacter::AFPGCharacter()
@@ -16,12 +17,20 @@ AFPGCharacter::AFPGCharacter()
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	CameraComponent->SetupAttachment(GetRootComponent());
+
+	Sphere = CreateDefaultSubobject<UStaticMeshComponent>("Sphere");
+	Sphere->SetupAttachment(GetRootComponent());
 }
 
 // Called when the game starts or when spawned
 void AFPGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	InitCameraTransform = CameraComponent->GetRelativeTransform();
+
+	
+	//OnShowDetectedItemInfo.AddUObject();
 }
 
 // Called every frame
@@ -29,44 +38,16 @@ void AFPGCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	auto DetectedActor = DetectActor();
-	if (DetectedActor)
+	if (bDetectInteractiveActor)
 	{
-		CurrentDetectActor = DetectedActor;
-		if (DetectedActor != LastDetectActor)
-		{
-			if (LastDetectActor)
-				LastDetectActor->HideHighlight();
-				LastDetectActor = DetectedActor;
-			DetectedActor->OnDetected();
-		}
-		if (bHolding && CurrentDetectActor)
-		{
-			FVector ViewLocation;
-			FRotator ViewRotation;
-			GetController()->GetPlayerViewPoint(ViewLocation, ViewRotation);
-
-			const auto DetectedActorDirection = ViewRotation.Vector();
-			DesiredTransform = CurrentDetectActor->GetActorTransform();
-			LastTransform = CurrentDetectActor->GetActorTransform();
-			
-			const FVector NewDetectedActorLocation = ViewLocation + DetectedActorDirection * Distance;
-			DesiredTransform.SetLocation(NewDetectedActorLocation);
-			CurrentDetectActor->UpdateLocation(DesiredTransform);
-
-			if (CurrentDetectActor->IsInCollision())
-				CurrentDetectActor->UpdateLocation(LastTransform);
-		}
+		HandleDetectInteractableActor();
 	}
 	else
 	{
-		if (LastDetectActor)
+		if (bDetectTransformActor)
 		{
-			LastDetectActor->HideHighlight();
-			LastDetectActor = nullptr;
+			HandleDetectTransformActor();
 		}
-		CurrentDetectActor = nullptr;
-		bHolding = false;
 	}
 }
 
@@ -80,14 +61,30 @@ void AFPGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		PlayerInputComponent->BindAxis("MoveRight", this, &AFPGCharacter::MoveRight);
 		PlayerInputComponent->BindAxis("LookUp", this, &AFPGCharacter::LookUp);
 		PlayerInputComponent->BindAxis("LookRight", this, &AFPGCharacter::LookRight);
-		PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFPGCharacter::OnStartHold);
-		PlayerInputComponent->BindAction("Fire", IE_Released, this, &AFPGCharacter::OnStopHold);
+
+		//Followings are deprecated input settings
+		PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFPGCharacter::OnStartHoldTransform);
+		PlayerInputComponent->BindAction("Fire", IE_Released, this, &AFPGCharacter::OnStopHoldTransform);
 	}
+}
+
+FBasicInteractableItemInfo AFPGCharacter::ReportDetectedItemInfo()
+{
+	FBasicInteractableItemInfo RetVal;
+	if(CurrentDetectInteractableActor)
+	{
+		RetVal = CurrentDetectInteractableActor->GetBasicInfo();
+	}
+	return RetVal;
 }
 
 void AFPGCharacter::MoveForward(const float Val)
 {
 	AddMovementInput(GetActorForwardVector(), Val);
+	if (!FMath::IsNearlyZero(Val))
+	{
+		CameraShake();
+	}
 }
 
 void AFPGCharacter::MoveRight(const float Val)
@@ -105,7 +102,65 @@ void AFPGCharacter::LookRight(float Val)
 	AddControllerYawInput(Val);
 }
 
-AFPGTransformActor* AFPGCharacter::DetectActor()
+ABaseInteractableActor* AFPGCharacter::DetectInteractableActor() const
+{
+	FVector ViewLocation;
+	FRotator ViewRotator;
+	GetController()->GetPlayerViewPoint(ViewLocation, ViewRotator);
+
+	const FVector TraceStart = ViewLocation;
+	const FVector TraceDirection = ViewRotator.Vector();
+
+	FVector TraceEnd = TraceStart + TraceDirection * TraceDetectDistance;
+
+	FHitResult HitResult;
+	GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility);
+
+	if (HitResult.bBlockingHit)
+	{
+		auto DetectedActor = HitResult.GetActor();
+		if (DetectedActor->IsA<ABaseInteractableActor>())
+		{
+			auto DetectedInteractableActor = Cast<ABaseInteractableActor>(DetectedActor);
+			return DetectedInteractableActor;
+		}
+	}
+
+	return nullptr;
+}
+
+void AFPGCharacter::HandleDetectInteractableActor()
+{
+	if (bDetectInteractiveActor)
+	{
+		const auto DetectedActor = DetectInteractableActor();
+		if (DetectedActor)
+		{
+			if (DetectedActor != LastDetectInteractableActor)
+			{
+				LastDetectInteractableActor = CurrentDetectInteractableActor;
+				CurrentDetectInteractableActor = DetectedActor;
+				const auto DetectedActorInfo = DetectedActor->GetBasicInfo();
+				//UE_LOG(FPGCharacterLog, Warning, TEXT("ItemName: %s, ItemDescription: %s"),*DetectedActorInfo.ItemName.ToString(), *DetectedActorInfo.ItemDescription.ToString());
+				OnShowDetectedItemInfo.Broadcast();
+			}
+		}
+		else
+		{
+			LastDetectInteractableActor = CurrentDetectInteractableActor;
+			CurrentDetectInteractableActor = nullptr;
+			if(LastDetectInteractableActor)
+			{
+				OnHideDetectedItemInfo.Broadcast();
+			}
+		}
+	}
+}
+
+//The following function has been deprecated, but this doesn't necessarily mean following functions don't work
+
+//This function is to detect TransformActors and return a pointer referring to an instance. Returns nullptr if none instance is detected
+AFPGTransformActor* AFPGCharacter::DetectTransformActor() const
 {
 	FVector ViewLocation;
 	FRotator ViewRotator;
@@ -125,6 +180,7 @@ AFPGTransformActor* AFPGCharacter::DetectActor()
 		auto DetectedActor = HitResult.GetActor();
 		if (DetectedActor->IsA<AFPGTransformActor>())
 		{
+			UE_LOG(FPGCharacterLog, Warning, TEXT("Detected!"));
 			auto DetectedTransformActor = Cast<AFPGTransformActor>(DetectedActor);
 			return DetectedTransformActor;
 		}
@@ -133,32 +189,99 @@ AFPGTransformActor* AFPGCharacter::DetectActor()
 	return nullptr;
 }
 
-void AFPGCharacter::OnStartHold()
+//Deprecated function
+//This function is to handle TransformActor's StartHold event
+void AFPGCharacter::OnStartHoldTransform()
 {
-	if (!CurrentDetectActor) return;
+	if (!bDetectTransformActor) return;
+	if (!CurrentDetectTransformActor) return;
 
-	const auto DetectedActorLocation = CurrentDetectActor->GetActorLocation();
+	const auto DetectedActorLocation = CurrentDetectTransformActor->GetActorLocation();
 	const auto ActorLocation = GetActorLocation();
 
 	Distance = (DetectedActorLocation - ActorLocation).Length();
-	UE_LOG(FPGCharacter, Warning, TEXT("Distance:%f"), Distance);
+	UE_LOG(FPGCharacterLog, Warning, TEXT("Distance:%f"), Distance);
 	const FVector InitDirection = (DetectedActorLocation - ActorLocation).GetSafeNormal();
-	
+
 	bHolding = true;
 }
 
-void AFPGCharacter::OnStopHold()
+//Deprecated function
+//This function is to handle TransformActor's StopHold event.
+void AFPGCharacter::OnStopHoldTransform()
 {
-	if (!CurrentDetectActor) return;
+	if (!bDetectTransformActor) return;
+	if (!CurrentDetectTransformActor) return;
 	FVector ViewLocation;
 	FRotator ViewRotation;
 	GetController()->GetPlayerViewPoint(ViewLocation, ViewRotation);
-	CurrentDetectActor->StartTest(
+	CurrentDetectTransformActor->StartTest(
 		this,
-		CurrentDetectActor->GetActorLocation(),
-		CurrentDetectActor->GetActorScale(),
+		CurrentDetectTransformActor->GetActorLocation(),
+		CurrentDetectTransformActor->GetActorScale(),
 		GetActorForwardVector(),
 		Distance);
-	CurrentDetectActor->SetCanShowHighlight(false);
+	CurrentDetectTransformActor->SetCanShowHighlight(false);
 	bHolding = false;
+}
+
+//Deprecated function
+//This function is to handle detecting TransformActor by ticking
+//To enable this function, you need to enable DetectTransform in category "Detect" in blueprint derived from this class. However this may cause some unexpected errors
+void AFPGCharacter::HandleDetectTransformActor()
+{
+	if (bDetectTransformActor)
+	{
+		auto DetectedActor = DetectTransformActor();
+		if (DetectedActor)
+		{
+			CurrentDetectTransformActor = DetectedActor;
+			if (DetectedActor != LastDetectTransformActor)
+			{
+				if (LastDetectTransformActor)
+					LastDetectTransformActor->HideHighlight();
+				LastDetectTransformActor = DetectedActor;
+				DetectedActor->OnDetected();
+			}
+			if (bHolding && CurrentDetectTransformActor)
+			{
+				FVector ViewLocation;
+				FRotator ViewRotation;
+				GetController()->GetPlayerViewPoint(ViewLocation, ViewRotation);
+
+				const auto DetectedActorDirection = ViewRotation.Vector();
+				DesiredTransform = CurrentDetectTransformActor->GetActorTransform();
+				LastTransform = CurrentDetectTransformActor->GetActorTransform();
+
+				const FVector NewDetectedActorLocation = ViewLocation + DetectedActorDirection * Distance;
+				DesiredTransform.SetLocation(NewDetectedActorLocation);
+				CurrentDetectTransformActor->UpdateLocation(DesiredTransform);
+
+				if (CurrentDetectTransformActor->IsInCollision())
+					CurrentDetectTransformActor->UpdateLocation(LastTransform);
+			}
+		}
+		else
+		{
+			if (LastDetectTransformActor)
+			{
+				LastDetectTransformActor->HideHighlight();
+				LastDetectTransformActor = nullptr;
+			}
+			CurrentDetectTransformActor = nullptr;
+			bHolding = false;
+		}
+	}
+}
+
+//Deprecated function
+//This function hasn't been implemented yet
+void AFPGCharacter::StartCameraShake()
+{
+}
+
+//Deprecated function
+//This function hasn't been implemented yet
+void AFPGCharacter::CameraShake()
+{
 }

@@ -46,6 +46,32 @@ struct FAmmoInfo
 };
 
 USTRUCT(BlueprintType)
+struct FBasicInteractableItemInfo: public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="InteractableAvtorInfo")
+	FName ItemName = "Name Error";
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="InteractableAvtorInfo")
+	FText ItemDescription = FText::FromString(FString("Description Error"));
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="InteractableAvtorInfo")
+	UTexture2D* ItemTexture = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="InteractableAvtorInfo")
+	int32 MaxAmount = 99;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="InteractableAvtorInfo")
+	bool bCanOverlay = true;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="InteractableAvtorInfo")
+	bool bPickable = false;
+};
+
+
+//deprecated structure
+USTRUCT(BlueprintType)
 struct FPickItemData : public FTableRowBase
 {
 	GENERATED_USTRUCT_BODY()
@@ -65,6 +91,7 @@ public:
 
 };
 
+//deprecated structure
 USTRUCT(BlueprintType)
 struct FShopItemData : public FTableRowBase
 {

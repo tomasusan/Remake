@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+//This is an experimental class that allows players to move objects and alter the actual position and size of items through visual illusions.
+//The related functionalities are not fully developed yet, and currently only support the movement of spherical objects.
 
 #pragma once
 
@@ -99,4 +100,5 @@ private:
 	bool CanShowHighlight = true;
 	FTimerHandle TestTimerHandle;
 	FTimerHandle Delay;
+	
 };
