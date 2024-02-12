@@ -17,6 +17,15 @@ void AFPGHUD::BeginPlay()
 	Character = Cast<AFPGCharacter>(GetOwningPawn());
 	Character->OnShowDetectedItemInfo.AddUObject(this, &AFPGHUD::OnShowItemHint);
 	Character->OnHideDetectedItemInfo.AddUObject(this, &AFPGHUD::OnHideItemHint);
+	Character->OnUpdateHintInfo.AddUObject(this, &AFPGHUD::UpdateHintInfo);
+
+	const auto GameInstance = Cast<UFPGGameInstance>(GetGameInstance());
+	GameInstance->SetCurrentHUD(this);
+}
+
+void AFPGHUD::SwitchWidget()
+{
+	MainUserWidget->SwitchWidget();
 }
 
 void AFPGHUD::OnShowItemHint() const
@@ -27,4 +36,9 @@ void AFPGHUD::OnShowItemHint() const
 void AFPGHUD::OnHideItemHint() const
 {
 	MainUserWidget->HideHint();
+}
+
+void AFPGHUD::UpdateHintInfo()
+{
+	MainUserWidget->UpdateHintInfo();
 }

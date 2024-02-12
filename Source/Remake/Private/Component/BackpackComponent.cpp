@@ -4,39 +4,39 @@ UBackpackComponent::UBackpackComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 }
+
 void UBackpackComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	//BackpackWidget->Call();
 }
 
-void UBackpackComponent::PickItem(const FPickItemData& ItemData)
+void UBackpackComponent::PickItem(FBasicInteractableItemInfo ItemData)
 {
-	for(auto& Item:Items)
+	if (!ItemData.bCanOverlay)
 	{
-		if(Item.ItemName==ItemData.ItemName)
+		ItemData.CurrentAmount = 1;
+		Items.Add(ItemData);
+		return;
+	}
+	for (auto& Item : Items)
+	{
+		if (Item.ItemName == ItemData.ItemName)
 		{
-			if(Item.CurrentAmount<Item.MaxAmount)
+			if (Item.CurrentAmount == Item.MaxAmount)
 			{
-				Item.CurrentAmount++;
-				return;
+				continue;
 			}
-			else
-			{
-				goto Add;
-			}
+			Item.CurrentAmount++;
+			return;
 		}
 	}
-	Add:
-		auto NewItem = ItemData;
-		NewItem.CurrentAmount = 1;
-		Items.Add(NewItem);
+	ItemData.CurrentAmount = 1;
+	Items.Add(ItemData);
 }
 
 void UBackpackComponent::ReceiveShopItem(const FShopItemData& ShopItemData)
 {
-	const auto NewItem = *ItemDataTable->FindRow<FPickItemData>(ShopItemData.ItemName, FString("Convert From Shop Item to PickItem"));
-	PickItem(NewItem);
 }
 
 void UBackpackComponent::UseItem(const int32 Index)
@@ -45,11 +45,8 @@ void UBackpackComponent::UseItem(const int32 Index)
 
 void UBackpackComponent::ThrowItem(const int32 Index)
 {
-	
 }
 
 void UBackpackComponent::SwitchBackpackOpen()
 {
-	
 }
-

@@ -15,10 +15,15 @@ public class Remake : ModuleRules
 			"Engine", 
 			"InputCore",
 			"GameplayTasks",
-			"NavigationSystem"
+			"NavigationSystem",
+			"InputCore"
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PrivateDependencyModuleNames.AddRange(new string[]
+		{
+			"Slate",
+			"SlateCore"
+		});
 		
 		PublicIncludePaths.AddRange(new string[]
 		{

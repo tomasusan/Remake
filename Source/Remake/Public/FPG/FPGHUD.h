@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
 #include "FPGCharacter.h"
+#include "RemakeCoreTypes.h"
 #include "FPGHUD.generated.h"
 class UMainUserWidget;
 /**
@@ -31,6 +32,12 @@ private:
 	UFUNCTION()
 	void OnHideItemHint() const;
 
+	UFUNCTION()
+	void UpdateHintInfo();
+
 	UPROPERTY()
 	AFPGCharacter* Character;
+
+public:
+	void SwitchWidget();
 };

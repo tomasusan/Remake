@@ -13,12 +13,12 @@ class REMAKE_API UBackpackComponent : public UActorComponent
 public:	
 	UBackpackComponent();
 
-	void PickItem(const FPickItemData& ItemData);
+	void PickItem(FBasicInteractableItemInfo ItemData);
 	void ReceiveShopItem(const FShopItemData& ShopItemData);
 	void UseItem(const int32 Index);
 	void ThrowItem(const int32 Index);
 	void SwitchBackpackOpen();
-	TArray<FPickItemData> GetBackpack() const {return Items;}
+	TArray<FBasicInteractableItemInfo> GetBackpack() const {return Items;}
 
 protected:
 	virtual void BeginPlay() override;
@@ -29,7 +29,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ItemData")
 	UDataTable* ItemDataTable;
 private:
-	TArray<FPickItemData> Items;
+	TArray<FBasicInteractableItemInfo> Items;
 
 	bool bBackpackOpen = false;
 };

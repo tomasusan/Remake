@@ -7,12 +7,14 @@
 #include "RemakeCoreTypes.h"
 #include "FPGCharacter.generated.h"
 
+class UBackpackComponent;
 class ABaseInteractableActor;
 class UCameraComponent;
 class AFPGTransformActor;
 
 DECLARE_MULTICAST_DELEGATE(FShowDetectedItemInfoSigniture);
 DECLARE_MULTICAST_DELEGATE(FHideDetectedItemInfoSigniture);
+DECLARE_MULTICAST_DELEGATE(FUpdateHintInfoSignature);
 
 UCLASS()
 class REMAKE_API AFPGCharacter : public ACharacter
@@ -30,12 +32,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Component")
 	UCameraComponent* CameraComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Component")
+	UBackpackComponent* BackpackComponent;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="DetectInfo")
 	float TraceDetectDistance = 100.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Component")
 	UStaticMeshComponent* Sphere;
-
 
 public:
 	// Called every frame
@@ -43,7 +47,7 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Detect", meta=(EditCondition="!bDetectTransformActor"))
 	bool bDetectInteractiveActor = true;
 
@@ -53,25 +57,31 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="CameraShake")
 	bool bCameraShack = true;
 
+	TArray<FBasicInteractableItemInfo> GetItems() const;
+	TArray<FBasicInteractableItemInfo> GetItemsByType(const EItemType Type) const;
+
 	FBasicInteractableItemInfo ReportDetectedItemInfo();
 
 	FShowDetectedItemInfoSigniture OnShowDetectedItemInfo;
 	FHideDetectedItemInfoSigniture OnHideDetectedItemInfo;
+	FUpdateHintInfoSignature OnUpdateHintInfo;
 
 private:
 	void MoveForward(const float Val);
 	void MoveRight(const float Val);
 	void LookUp(float Val);
 	void LookRight(float Val);
+	void Pick();
 	ABaseInteractableActor* DetectInteractableActor() const;
 	AFPGTransformActor* DetectTransformActor() const;
 	void OnStartHoldTransform();
 	void OnStopHoldTransform();
 	void HandleDetectInteractableActor();
 	void HandleDetectTransformActor();
+	void SwitchWidget();
 	void StartCameraShake();
 	void CameraShake();
-	
+
 	UPROPERTY()
 	AFPGTransformActor* LastDetectTransformActor = nullptr;
 
@@ -85,6 +95,7 @@ private:
 	ABaseInteractableActor* CurrentDetectInteractableActor = nullptr;
 
 	bool bHolding = false;
+	bool bEnableLookAround = true;
 	float Distance = 0.0f;
 
 	FTransform LastTransform;

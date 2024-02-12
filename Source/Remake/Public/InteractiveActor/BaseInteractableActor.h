@@ -32,15 +32,20 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	virtual void Detected();
+	virtual void LoseDetected();
 
 	UFUNCTION(BlueprintCallable)
 	FBasicInteractableItemInfo GetBasicInfo() const { return BasicInfo; }
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="InteractableAvtorInfo")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="InteractableActorInfo")
 	FName ItemName;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="InteractableAvtorInfo")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="InteractableActorInfo")
 	UDataTable* BasicDataTable;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="InteractableActorInfo")
+	bool bDetectable = true;
 
 private:
 	FBasicInteractableItemInfo BasicInfo;

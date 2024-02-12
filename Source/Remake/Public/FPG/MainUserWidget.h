@@ -7,6 +7,7 @@
 #include "RemakeCoreTypes.h"
 #include "MainUserWidget.generated.h"
 
+class UBackpackCell;
 /**
  * 
  */
@@ -22,6 +23,25 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void HideHint();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SwitchWidget();
+
 	UFUNCTION(BlueprintCallable)
 	FBasicInteractableItemInfo GetDetectedItemInfo();
+
+	UFUNCTION(BlueprintCallable)
+	TSubclassOf<UBackpackCell> GetBackpackCellClass() const {return BackpackCellClass;}
+
+	UFUNCTION(BlueprintCallable)
+	void GetCurrentItems(TArray<FBasicInteractableItemInfo>& Items);
+
+	UFUNCTION(BlueprintCallable)
+	void GetItemsByType(TArray<FBasicInteractableItemInfo>& Items,const EItemType Type);
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void UpdateHintInfo();
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Backpack")
+	TSubclassOf<UBackpackCell> BackpackCellClass;
 };

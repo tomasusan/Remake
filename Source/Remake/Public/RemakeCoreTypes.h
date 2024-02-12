@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/DataTable.h"
+#include "FPGGameInstance.h"
 #include "RemakeCoreTypes.generated.h"
 
 USTRUCT(BlueprintType)
@@ -45,30 +46,67 @@ struct FAmmoInfo
 	int32 AmmoInClip = 0;
 };
 
+UENUM(BlueprintType)
+enum class EItemType:uint8
+{
+	Weapon,
+	Consumable
+};
+
+
 USTRUCT(BlueprintType)
 struct FBasicInteractableItemInfo: public FTableRowBase
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="InteractableAvtorInfo")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FName ItemName = "Name Error";
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="InteractableAvtorInfo")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FText ItemDescription = FText::FromString(FString("Description Error"));
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="InteractableAvtorInfo")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	UTexture2D* ItemTexture = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="InteractableAvtorInfo")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UTexture2D* ItemTextureBackpack = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool bPickable = false;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	int32 CurrentAmount = 0;
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(EditCondition="bCanOverlay&&bPickable"))
 	int32 MaxAmount = 99;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="InteractableAvtorInfo")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(EditCondition="bPickable"))
 	bool bCanOverlay = true;
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool bDetectable = true;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="InteractableAvtorInfo")
-	bool bPickable = false;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	EItemType Type = EItemType::Consumable;
 };
 
+USTRUCT(BlueprintType)
+struct FCharacterInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	int32 CurrentHP;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	int32 MaxHP;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	int32 CurrentMP;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	int32 MaxMP;
+};
 
 //deprecated structure
 USTRUCT(BlueprintType)

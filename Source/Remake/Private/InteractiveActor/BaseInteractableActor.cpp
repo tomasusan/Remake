@@ -34,6 +34,15 @@ void ABaseInteractableActor::Tick(float DeltaTime)
 
 }
 
+void ABaseInteractableActor::Detected()
+{
+	
+}
+
+void ABaseInteractableActor::LoseDetected()
+{
+}
+
 void ABaseInteractableActor::InitActorInfo()
 {
 	const auto RowInfo = BasicDataTable->FindRow<FBasicInteractableItemInfo>(ItemName, "GetBasicInfo", true);

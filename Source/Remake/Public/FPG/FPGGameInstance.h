@@ -14,5 +14,11 @@ class REMAKE_API UFPGGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 
-	
+public:
+	void SetCurrentHUD(AHUD* HUD) { CurrentHUD = HUD; }
+	AHUD* GetCurrentHUD() const { return CurrentHUD; }
+
+private:
+	UPROPERTY()
+	AHUD* CurrentHUD = nullptr;
 };

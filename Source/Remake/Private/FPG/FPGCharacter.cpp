@@ -2,10 +2,14 @@
 
 
 #include "FPG/FPGCharacter.h"
+
+#include "BackpackComponent.h"
 #include "BaseInteractableActor.h"
 #include "FPGTransformActor.h"
 #include "Camera/CameraComponent.h"
 #include "DrawDebugHelpers.h"
+#include "FPGHUD.h"
+#include "PickableActor.h"
 
 DEFINE_LOG_CATEGORY_STATIC(FPGCharacterLog, All, All);
 
@@ -20,6 +24,8 @@ AFPGCharacter::AFPGCharacter()
 
 	Sphere = CreateDefaultSubobject<UStaticMeshComponent>("Sphere");
 	Sphere->SetupAttachment(GetRootComponent());
+
+	BackpackComponent = CreateDefaultSubobject<UBackpackComponent>("BackpackComponent");
 }
 
 // Called when the game starts or when spawned
@@ -29,7 +35,7 @@ void AFPGCharacter::BeginPlay()
 
 	InitCameraTransform = CameraComponent->GetRelativeTransform();
 
-	
+
 	//OnShowDetectedItemInfo.AddUObject();
 }
 
@@ -61,6 +67,9 @@ void AFPGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		PlayerInputComponent->BindAxis("MoveRight", this, &AFPGCharacter::MoveRight);
 		PlayerInputComponent->BindAxis("LookUp", this, &AFPGCharacter::LookUp);
 		PlayerInputComponent->BindAxis("LookRight", this, &AFPGCharacter::LookRight);
+		PlayerInputComponent->BindAction("SwitchWidget", IE_Pressed, this, &AFPGCharacter::SwitchWidget);
+		PlayerInputComponent->BindAction("Pick", IE_Pressed, this, &AFPGCharacter::Pick);
+
 
 		//Followings are deprecated input settings
 		PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFPGCharacter::OnStartHoldTransform);
@@ -68,10 +77,28 @@ void AFPGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	}
 }
 
+TArray<FBasicInteractableItemInfo> AFPGCharacter::GetItems() const
+{
+	return BackpackComponent->GetBackpack();
+}
+
+TArray<FBasicInteractableItemInfo> AFPGCharacter::GetItemsByType(const EItemType Type) const
+{
+	TArray<FBasicInteractableItemInfo> TypeItems;
+	for(auto Item:GetItems())
+	{
+		if(Item.Type == Type)
+		{
+			TypeItems.Add(Item);
+		}
+	}
+	return TypeItems;
+}
+
 FBasicInteractableItemInfo AFPGCharacter::ReportDetectedItemInfo()
 {
 	FBasicInteractableItemInfo RetVal;
-	if(CurrentDetectInteractableActor)
+	if (CurrentDetectInteractableActor)
 	{
 		RetVal = CurrentDetectInteractableActor->GetBasicInfo();
 	}
@@ -94,12 +121,27 @@ void AFPGCharacter::MoveRight(const float Val)
 
 void AFPGCharacter::LookUp(float Val)
 {
+	if (!bEnableLookAround) return;
 	AddControllerPitchInput(Val);
 }
 
 void AFPGCharacter::LookRight(float Val)
 {
+	if (!bEnableLookAround) return;
 	AddControllerYawInput(Val);
+}
+
+void AFPGCharacter::Pick()
+{
+	if (!CurrentDetectInteractableActor) return;
+	if (CurrentDetectInteractableActor && CurrentDetectInteractableActor->GetBasicInfo().bPickable && CurrentDetectInteractableActor->IsA<APickableActor>())
+	{
+		UE_LOG(FPGCharacterLog, Display, TEXT("In Picking"));
+		BackpackComponent->PickItem(CurrentDetectInteractableActor->GetBasicInfo());
+		CurrentDetectInteractableActor->Destroy();
+		CurrentDetectInteractableActor = nullptr;
+		OnHideDetectedItemInfo.Broadcast();
+	}
 }
 
 ABaseInteractableActor* AFPGCharacter::DetectInteractableActor() const
@@ -122,7 +164,14 @@ ABaseInteractableActor* AFPGCharacter::DetectInteractableActor() const
 		if (DetectedActor->IsA<ABaseInteractableActor>())
 		{
 			auto DetectedInteractableActor = Cast<ABaseInteractableActor>(DetectedActor);
-			return DetectedInteractableActor;
+			if (DetectedInteractableActor->GetBasicInfo().bDetectable)
+			{
+				return DetectedInteractableActor;
+			}
+			else
+			{
+				return nullptr;
+			}
 		}
 	}
 
@@ -136,22 +185,32 @@ void AFPGCharacter::HandleDetectInteractableActor()
 		const auto DetectedActor = DetectInteractableActor();
 		if (DetectedActor)
 		{
-			if (DetectedActor != LastDetectInteractableActor)
+			if (!LastDetectInteractableActor)
 			{
 				LastDetectInteractableActor = CurrentDetectInteractableActor;
 				CurrentDetectInteractableActor = DetectedActor;
 				const auto DetectedActorInfo = DetectedActor->GetBasicInfo();
 				//UE_LOG(FPGCharacterLog, Warning, TEXT("ItemName: %s, ItemDescription: %s"),*DetectedActorInfo.ItemName.ToString(), *DetectedActorInfo.ItemDescription.ToString());
 				OnShowDetectedItemInfo.Broadcast();
+				CurrentDetectInteractableActor->Detected();
+			}
+			else if (LastDetectInteractableActor != DetectedActor)
+			{
+				LastDetectInteractableActor->LoseDetected();
+				LastDetectInteractableActor = CurrentDetectInteractableActor;
+				CurrentDetectInteractableActor = DetectedActor;
+				CurrentDetectInteractableActor->Detected();
+				OnUpdateHintInfo.Broadcast();
 			}
 		}
 		else
 		{
 			LastDetectInteractableActor = CurrentDetectInteractableActor;
 			CurrentDetectInteractableActor = nullptr;
-			if(LastDetectInteractableActor)
+			if (LastDetectInteractableActor)
 			{
 				OnHideDetectedItemInfo.Broadcast();
+				LastDetectInteractableActor->LoseDetected();
 			}
 		}
 	}
@@ -272,6 +331,14 @@ void AFPGCharacter::HandleDetectTransformActor()
 			bHolding = false;
 		}
 	}
+}
+
+void AFPGCharacter::SwitchWidget()
+{
+	const auto GameInstance = Cast<UFPGGameInstance>(GetGameInstance());
+	const auto GameHUD = Cast<AFPGHUD>(GameInstance->GetCurrentHUD());
+	//bEnableLookAround = !bEnableLookAround;
+	GameHUD->SwitchWidget();
 }
 
 //Deprecated function
