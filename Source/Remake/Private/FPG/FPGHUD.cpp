@@ -4,6 +4,7 @@
 #include "FPG/FPGHUD.h"
 #include "MainUserWidget.h"
 #include "Blueprint/UserWidget.h"
+#include "FPGGameInstance.h"
 
 DEFINE_LOG_CATEGORY_STATIC(FPGHUDLog, All, All);
 
@@ -18,6 +19,7 @@ void AFPGHUD::BeginPlay()
 	Character->OnShowDetectedItemInfo.AddUObject(this, &AFPGHUD::OnShowItemHint);
 	Character->OnHideDetectedItemInfo.AddUObject(this, &AFPGHUD::OnHideItemHint);
 	Character->OnUpdateHintInfo.AddUObject(this, &AFPGHUD::UpdateHintInfo);
+	Character->OnOpenShop.AddUObject(this, &AFPGHUD::OpenShopWidget);
 
 	const auto GameInstance = Cast<UFPGGameInstance>(GetGameInstance());
 	GameInstance->SetCurrentHUD(this);
@@ -26,6 +28,12 @@ void AFPGHUD::BeginPlay()
 void AFPGHUD::SwitchWidget()
 {
 	MainUserWidget->SwitchWidget();
+}
+
+void AFPGHUD::OpenShopWidget()
+{
+	UE_LOG(FPGHUDLog, Warning, TEXT("Calling Delegate Suceess"));
+	MainUserWidget->OpenShopWidget();
 }
 
 void AFPGHUD::OnShowItemHint() const

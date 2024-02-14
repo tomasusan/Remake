@@ -26,6 +26,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SwitchWidget();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void OpenShopWidget();
+
 	UFUNCTION(BlueprintCallable)
 	FBasicInteractableItemInfo GetDetectedItemInfo();
 
@@ -37,6 +40,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void GetItemsByType(TArray<FBasicInteractableItemInfo>& Items,const EItemType Type);
+
+	UFUNCTION(BlueprintCallable)
+	void GetShopItems(TArray<FBasicInteractableItemInfo>& Items, TArray<FShopItemData>& ShopItemInfo);
+
+	UFUNCTION(BlueprintCallable)
+	void GetShopItemsByType(TArray<FBasicInteractableItemInfo>& Items, TArray<FShopItemData>& ShopItemInfo,const EItemType Type);
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void UpdateHintInfo();

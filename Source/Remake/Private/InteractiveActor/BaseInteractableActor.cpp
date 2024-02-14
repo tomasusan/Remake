@@ -4,6 +4,7 @@
 #include "InteractiveActor/BaseInteractableActor.h"
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/WidgetComponent.h"
 
 // Sets default values
 ABaseInteractableActor::ABaseInteractableActor()
@@ -50,3 +51,32 @@ void ABaseInteractableActor::InitActorInfo()
 	BasicInfo = *RowInfo;
 }
 
+/*LoginId:f424aaed4470e0d533bf1782766170a2
+EpicAccountId:d826da8c6fba4fda9b0d0b583419a15a
+
+Assertion failed: OwningCharacter [File:E:\UEPJ\Remake\Source\Remake\Private\Shop\ShopComponent.cpp] [Line: 19] Owning Character Cast Fail
+
+UnrealEditor_Remake!UShopComponent::BeginPlay() [E:\UEPJ\Remake\Source\Remake\Private\Shop\ShopComponent.cpp:19]
+UnrealEditor_Engine
+UnrealEditor_Remake!ABaseInteractableActor::BeginPlay() [E:\UEPJ\Remake\Source\Remake\Private\InteractiveActor\BaseInteractableActor.cpp:27]
+UnrealEditor_Engine
+UnrealEditor_Engine
+UnrealEditor_Engine
+UnrealEditor_Engine
+UnrealEditor_Engine
+UnrealEditor_UnrealEd
+UnrealEditor_UnrealEd
+UnrealEditor_UnrealEd
+UnrealEditor_UnrealEd
+UnrealEditor_UnrealEd
+UnrealEditor_UnrealEd
+UnrealEditor_UnrealEd
+UnrealEditor_UnrealEd
+UnrealEditor
+UnrealEditor
+UnrealEditor
+UnrealEditor
+UnrealEditor
+UnrealEditor
+kernel32
+ntdll*/

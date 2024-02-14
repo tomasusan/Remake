@@ -2,12 +2,9 @@
 
 
 #include "InteractiveActor/PickableActor.h"
-#include "Components/WidgetComponent.h"
 
 APickableActor::APickableActor()
 {
-	DetectedWidget = CreateDefaultSubobject<UWidgetComponent>("DetectedWidget");
-	DetectedWidget->SetupAttachment(GetRootComponent());
 }
 
 void APickableActor::Detected()

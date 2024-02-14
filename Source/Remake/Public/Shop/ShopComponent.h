@@ -8,6 +8,7 @@
 #include "ShopComponent.generated.h"
 
 
+class ABaseShop;
 class ABaseCharacter;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -18,20 +19,33 @@ class REMAKE_API UShopComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UShopComponent();
+
+	UFUNCTION(BlueprintCallable)
+	void GetItems(TArray<FBasicInteractableItemInfo>& Items, TArray<FShopItemData>& ShopItemInfo);
+
+	UFUNCTION(BlueprintCallable)
+	void GetItemByType(TArray<FBasicInteractableItemInfo>& Items, TArray<FShopItemData>& ShopItemInfo, EItemType Type);
 	
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Default")
-	TArray<FShopItemData> ShopItems;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="DefaultInfo")
+	TMap<FName, int32> InitItemMap;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="DefaultInfo")
+	UDataTable* BasicItemInfoTable;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="DefaultInfo")
+	UDataTable* ShopItemInfoTable;
 	
 private:
-	TArray<FShopItemData> CurrentItems;
+	
+	TArray<FShopItemData> ShopItems;
 	void InitShop();
 	void Sell(const int32 Index);
 
 	UPROPERTY()
-	ABaseCharacter* OwningCharacter;
+	ABaseShop* OwningCharacter;
 	
 };

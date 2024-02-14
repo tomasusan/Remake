@@ -15,6 +15,7 @@ class AFPGTransformActor;
 DECLARE_MULTICAST_DELEGATE(FShowDetectedItemInfoSigniture);
 DECLARE_MULTICAST_DELEGATE(FHideDetectedItemInfoSigniture);
 DECLARE_MULTICAST_DELEGATE(FUpdateHintInfoSignature);
+DECLARE_MULTICAST_DELEGATE(FOpenShopSignature)
 
 UCLASS()
 class REMAKE_API AFPGCharacter : public ACharacter
@@ -65,6 +66,7 @@ public:
 	FShowDetectedItemInfoSigniture OnShowDetectedItemInfo;
 	FHideDetectedItemInfoSigniture OnHideDetectedItemInfo;
 	FUpdateHintInfoSignature OnUpdateHintInfo;
+	FOpenShopSignature OnOpenShop;
 
 private:
 	void MoveForward(const float Val);
@@ -72,6 +74,7 @@ private:
 	void LookUp(float Val);
 	void LookRight(float Val);
 	void Pick();
+	void OpenShopWidget();
 	ABaseInteractableActor* DetectInteractableActor() const;
 	AFPGTransformActor* DetectTransformActor() const;
 	void OnStartHoldTransform();

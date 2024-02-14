@@ -40,4 +40,5 @@ private:
 
 public:
 	void SwitchWidget();
+	void OpenShopWidget();
 };

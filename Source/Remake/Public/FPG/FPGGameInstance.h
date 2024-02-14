@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "BaseShop.h"
 #include "FPGGameInstance.generated.h"
 
 /**
@@ -17,8 +18,13 @@ class REMAKE_API UFPGGameInstance : public UGameInstance
 public:
 	void SetCurrentHUD(AHUD* HUD) { CurrentHUD = HUD; }
 	AHUD* GetCurrentHUD() const { return CurrentHUD; }
+	ABaseShop* GetCurrentActiveShop() const { return CurrentActiveShop; }
+	void SetCurrentActiveShop(ABaseShop* Shop) { CurrentActiveShop = Shop; }
 
 private:
 	UPROPERTY()
 	AHUD* CurrentHUD = nullptr;
+
+	UPROPERTY()
+	ABaseShop* CurrentActiveShop = nullptr;
 };

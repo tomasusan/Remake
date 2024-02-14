@@ -1,6 +1,5 @@
 #pragma once
 #include "Engine/DataTable.h"
-#include "FPGGameInstance.h"
 #include "RemakeCoreTypes.generated.h"
 
 USTRUCT(BlueprintType)
@@ -50,7 +49,9 @@ UENUM(BlueprintType)
 enum class EItemType:uint8
 {
 	Weapon,
-	Consumable
+	Consumable,
+	Buff,
+	Tool
 };
 
 
@@ -59,35 +60,38 @@ struct FBasicInteractableItemInfo: public FTableRowBase
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="BasicInfo")
 	FName ItemName = "Name Error";
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="BasicInfo")
+	EItemType Type = EItemType::Consumable;
 	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="BasicInfo")
 	FText ItemDescription = FText::FromString(FString("Description Error"));
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Icon")
 	UTexture2D* ItemTexture = nullptr;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Icon")
 	UTexture2D* ItemTextureBackpack = nullptr;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	bool bPickable = false;
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	int32 CurrentAmount = 0;
 	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(EditCondition="bCanOverlay&&bPickable"))
-	int32 MaxAmount = 99;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(EditCondition="bPickable"))
-	bool bCanOverlay = true;
-	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="DetectionInfo")
 	bool bDetectable = true;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	EItemType Type = EItemType::Consumable;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="DetectionInfo", meta=(EditCondition="bDetectable"))
+	bool bShowHint = true;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="DetectionInfo", meta=(EditCondition="bDetectable"))
+	bool bPickable = false;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="DetectionInfo", meta=(EditCondition="bPickable"))
+	bool bCanOverlay = true;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="InBackpackInfo")
+	int32 CurrentAmount = 0;
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="InBackpackInfo", meta=(EditCondition="bCanOverlay&&bPickable&&bDetectable"))
+	int32 MaxAmount = 99;
 };
 
 USTRUCT(BlueprintType)
@@ -145,7 +149,7 @@ struct FShopItemData : public FTableRowBase
 	bool Update = true;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="ShopItem")
-	UTexture2D* Texture;
+	UTexture2D* ShopTexture;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="ShopItem")
 	int32 Cost = 0;

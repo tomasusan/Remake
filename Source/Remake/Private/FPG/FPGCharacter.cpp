@@ -9,6 +9,7 @@
 #include "Camera/CameraComponent.h"
 #include "DrawDebugHelpers.h"
 #include "FPGHUD.h"
+#include "FPGGameInstance.h"
 #include "PickableActor.h"
 
 DEFINE_LOG_CATEGORY_STATIC(FPGCharacterLog, All, All);
@@ -69,6 +70,7 @@ void AFPGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		PlayerInputComponent->BindAxis("LookRight", this, &AFPGCharacter::LookRight);
 		PlayerInputComponent->BindAction("SwitchWidget", IE_Pressed, this, &AFPGCharacter::SwitchWidget);
 		PlayerInputComponent->BindAction("Pick", IE_Pressed, this, &AFPGCharacter::Pick);
+		PlayerInputComponent->BindAction("OpenShop", IE_Pressed, this, &AFPGCharacter::OpenShopWidget);
 
 
 		//Followings are deprecated input settings
@@ -144,6 +146,22 @@ void AFPGCharacter::Pick()
 	}
 }
 
+void AFPGCharacter::OpenShopWidget()
+{
+	if(!CurrentDetectInteractableActor) return;
+	if(CurrentDetectInteractableActor->IsA<ABaseShop>())
+	{
+		UE_LOG(FPGCharacterLog, Warning, TEXT("Open Shop"));
+		GetGameInstance<UFPGGameInstance>()->SetCurrentActiveShop(Cast<ABaseShop>(CurrentDetectInteractableActor));
+		OnOpenShop.Broadcast();
+	}
+	else
+	{
+		UE_LOG(FPGCharacterLog, Warning, TEXT("No Shop Found!"));
+	}
+	
+}
+
 ABaseInteractableActor* AFPGCharacter::DetectInteractableActor() const
 {
 	FVector ViewLocation;
@@ -191,7 +209,10 @@ void AFPGCharacter::HandleDetectInteractableActor()
 				CurrentDetectInteractableActor = DetectedActor;
 				const auto DetectedActorInfo = DetectedActor->GetBasicInfo();
 				//UE_LOG(FPGCharacterLog, Warning, TEXT("ItemName: %s, ItemDescription: %s"),*DetectedActorInfo.ItemName.ToString(), *DetectedActorInfo.ItemDescription.ToString());
-				OnShowDetectedItemInfo.Broadcast();
+				if(CurrentDetectInteractableActor->GetBasicInfo().bShowHint)
+				{
+					OnShowDetectedItemInfo.Broadcast();
+				}
 				CurrentDetectInteractableActor->Detected();
 			}
 			else if (LastDetectInteractableActor != DetectedActor)
@@ -200,7 +221,10 @@ void AFPGCharacter::HandleDetectInteractableActor()
 				LastDetectInteractableActor = CurrentDetectInteractableActor;
 				CurrentDetectInteractableActor = DetectedActor;
 				CurrentDetectInteractableActor->Detected();
-				OnUpdateHintInfo.Broadcast();
+				if(CurrentDetectInteractableActor->GetBasicInfo().bShowHint)
+				{
+					OnUpdateHintInfo.Broadcast();
+				}
 			}
 		}
 		else
@@ -209,7 +233,10 @@ void AFPGCharacter::HandleDetectInteractableActor()
 			CurrentDetectInteractableActor = nullptr;
 			if (LastDetectInteractableActor)
 			{
-				OnHideDetectedItemInfo.Broadcast();
+				if(LastDetectInteractableActor->GetBasicInfo().bShowHint)
+				{
+					OnHideDetectedItemInfo.Broadcast();
+				}
 				LastDetectInteractableActor->LoseDetected();
 			}
 		}

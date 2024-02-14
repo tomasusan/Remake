@@ -43,9 +43,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="InteractableActorInfo")
 	UDataTable* BasicDataTable;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="InteractableActorInfo")
-	bool bDetectable = true;
 
 private:
 	FBasicInteractableItemInfo BasicInfo;
