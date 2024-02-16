@@ -11,12 +11,12 @@
 class ABaseShop;
 class ABaseCharacter;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class REMAKE_API UShopComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UShopComponent();
 
@@ -25,7 +25,11 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void GetItemByType(TArray<FBasicInteractableItemInfo>& Items, TArray<FShopItemData>& ShopItemInfo, EItemType Type);
-	
+
+	void GetFavourite(TArray<FShopItemData>& FavouriteItem);
+	void AddFavourite(const FShopItemData NewFavourite);
+	void RemoveFavourite(const FShopItemData RemovedFavourite);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -38,14 +42,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="DefaultInfo")
 	UDataTable* ShopItemInfoTable;
-	
+
 private:
-	
 	TArray<FShopItemData> ShopItems;
 	void InitShop();
 	void Sell(const int32 Index);
 
 	UPROPERTY()
 	ABaseShop* OwningCharacter;
-	
 };

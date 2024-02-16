@@ -100,16 +100,19 @@ struct FCharacterInfo
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	int32 CurrentHP;
+	int32 CurrentHP = 0;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	int32 MaxHP;
+	int32 MaxHP = 100;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	int32 CurrentMP;
+	int32 CurrentMP = 0;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	int32 MaxMP;
+	int32 MaxMP = 100;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	int32 CurrentMoney = 500;
 };
 
 //deprecated structure
@@ -153,4 +156,7 @@ struct FShopItemData : public FTableRowBase
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="ShopItem")
 	int32 Cost = 0;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ShopItem")
+	bool bFavourite = false;
 };

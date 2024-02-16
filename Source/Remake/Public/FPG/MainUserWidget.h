@@ -50,6 +50,12 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void UpdateHintInfo();
 
+	UFUNCTION(BlueprintCallable)
+	void AddFavourite(FShopItemData NewFavourite);
+
+	UFUNCTION(BlueprintCallable)
+	void GetFavourite(TArray<FShopItemData>& Favourites);
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Backpack")
 	TSubclassOf<UBackpackCell> BackpackCellClass;

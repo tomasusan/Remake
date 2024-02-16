@@ -6,6 +6,7 @@
 #include "BaseInteractableActor.h"
 #include "GameFramework/Actor.h"
 #include "RemakeCoreTypes.h"
+#include "ShopComponent.h"
 #include "BaseShop.generated.h"
 
 class UBackpackComponent;
@@ -17,8 +18,8 @@ UCLASS()
 class REMAKE_API ABaseShop : public ABaseInteractableActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	ABaseShop();
 
@@ -26,7 +27,8 @@ public:
 	void GetShopItems(TArray<FBasicInteractableItemInfo>& Items, TArray<FShopItemData>& ShopItemInfo);
 
 	UFUNCTION(BlueprintCallable)
-	void GetShopItemsByType(TArray<FBasicInteractableItemInfo>& Items, TArray<FShopItemData>& ShopItemInfo, EItemType Type);
+	void GetShopItemsByType(TArray<FBasicInteractableItemInfo>& Items, TArray<FShopItemData>& ShopItemInfo,
+	                        EItemType Type);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayAnimationFadeIn();
@@ -40,11 +42,21 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void LoseDetected() override;
 
+	void GetFavourite(TArray<FShopItemData>& Favourites) const
+	{
+		ShopRepositoryComponent->GetFavourite(Favourites);
+	}
+
+	UFUNCTION(BlueprintCallable)
+	void AddFavourite(FShopItemData NewFavourite);
+
+	UFUNCTION(BlueprintCallable)
+	void RemoveFavourite(FShopItemData RemovedFavourite);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Component")
 	UShopComponent* ShopRepositoryComponent;
-	
 };

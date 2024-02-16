@@ -10,7 +10,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType)
 class REMAKE_API UFPGGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
@@ -18,7 +18,9 @@ class REMAKE_API UFPGGameInstance : public UGameInstance
 public:
 	void SetCurrentHUD(AHUD* HUD) { CurrentHUD = HUD; }
 	AHUD* GetCurrentHUD() const { return CurrentHUD; }
+	UFUNCTION(BlueprintCallable)
 	ABaseShop* GetCurrentActiveShop() const { return CurrentActiveShop; }
+	UFUNCTION(BlueprintCallable)
 	void SetCurrentActiveShop(ABaseShop* Shop) { CurrentActiveShop = Shop; }
 
 private:

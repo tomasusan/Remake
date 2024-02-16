@@ -146,6 +146,11 @@ void AFPGCharacter::Pick()
 	}
 }
 
+void AFPGCharacter::ReceiveItem(const FBasicInteractableItemInfo& NewItem) const
+{
+	BackpackComponent->PickItem(NewItem);
+}
+
 void AFPGCharacter::OpenShopWidget()
 {
 	if(!CurrentDetectInteractableActor) return;
@@ -378,4 +383,17 @@ void AFPGCharacter::StartCameraShake()
 //This function hasn't been implemented yet
 void AFPGCharacter::CameraShake()
 {
+}
+
+bool AFPGCharacter::TryBuy(const FShopItemData& Item) const
+{
+	if(CharacterInfo.CurrentMoney>=Item.Cost)
+		return true;
+	return false;
+}
+
+void AFPGCharacter::Buy(const int32 Cost, const FBasicInteractableItemInfo& NewItem)
+{
+	CharacterInfo.CurrentMoney-=Cost;
+	ReceiveItem(NewItem);
 }

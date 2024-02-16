@@ -57,6 +57,42 @@ void UShopComponent::GetItemByType(TArray<FBasicInteractableItemInfo>& Items, TA
 	ShopItemInfo = RetItemShopInfo;
 }
 
+void UShopComponent::GetFavourite(TArray<FShopItemData>& FavouriteItem)
+{
+	TArray<FShopItemData> Favourites;
+	for(const auto Item:ShopItems)
+	{
+		if(Item.bFavourite)
+		{
+			Favourites.Add(Item);
+		}
+	}
+	FavouriteItem = Favourites;
+}
+
+void UShopComponent::AddFavourite(const FShopItemData NewFavourite)
+{
+	for(auto& Item:ShopItems)
+	{
+		if(Item.ItemName==NewFavourite.ItemName)
+		{
+			Item.bFavourite = true;
+		}
+	}
+	
+}
+
+void UShopComponent::RemoveFavourite(const FShopItemData RemovedFavourite)
+{
+	for(auto& Item:ShopItems)
+	{
+		if(Item.ItemName==RemovedFavourite.ItemName)
+		{
+			Item.bFavourite = false;
+		}
+	}
+}
+
 
 void UShopComponent::InitShop()
 {

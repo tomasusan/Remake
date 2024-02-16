@@ -43,6 +43,16 @@ void ABaseShop::LoseDetected()
 	PlayAnimationFadeOut();
 }
 
+void ABaseShop::AddFavourite(FShopItemData NewFavourite)
+{
+	ShopRepositoryComponent->AddFavourite(NewFavourite);
+}
+
+void ABaseShop::RemoveFavourite(FShopItemData RemovedFavourite)
+{
+	ShopRepositoryComponent->RemoveFavourite(RemovedFavourite);
+}
+
 // Called when the game starts or when spawned
 void ABaseShop::BeginPlay()
 {

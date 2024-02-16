@@ -68,12 +68,22 @@ public:
 	FUpdateHintInfoSignature OnUpdateHintInfo;
 	FOpenShopSignature OnOpenShop;
 
+	UFUNCTION(BlueprintCallable)
+	bool TryBuy(const FShopItemData& Item) const;
+
+	UFUNCTION(BlueprintCallable)
+	void Buy(const int32 Cost, const FBasicInteractableItemInfo& NewItem);
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetCurrentMoney() const { return CharacterInfo.CurrentMoney; }
+
 private:
 	void MoveForward(const float Val);
 	void MoveRight(const float Val);
 	void LookUp(float Val);
 	void LookRight(float Val);
 	void Pick();
+	void ReceiveItem(const FBasicInteractableItemInfo& NewItem) const;
 	void OpenShopWidget();
 	ABaseInteractableActor* DetectInteractableActor() const;
 	AFPGTransformActor* DetectTransformActor() const;
@@ -104,6 +114,7 @@ private:
 	FTransform LastTransform;
 	FTransform DesiredTransform;
 	FTransform InitCameraTransform;
+	FCharacterInfo CharacterInfo;
 
 	FTimerHandle CameraShakeTimerHandle;
 };
