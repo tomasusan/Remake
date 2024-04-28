@@ -53,6 +53,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RemoveFavourite(FShopItemData RemovedFavourite);
 
+	UFUNCTION(BlueprintCallable)
+	void Sell(FShopItemData SoldItemInfo);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

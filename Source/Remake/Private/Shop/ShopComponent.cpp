@@ -4,6 +4,7 @@
 #include "Shop/ShopComponent.h"
 #include "BaseCharacter.h"
 #include "BaseShop.h"
+#include "PhysicsProxy/FieldSystemProxyHelper.h"
 
 DEFINE_LOG_CATEGORY_STATIC(ShopComponentLog, All, All);
 
@@ -26,10 +27,11 @@ void UShopComponent::BeginPlay()
 void UShopComponent::GetItems(TArray<FBasicInteractableItemInfo>& Items, TArray<FShopItemData>& ShopItemInfo)
 {
 	TArray<FBasicInteractableItemInfo> RetItems;
-	for(auto Item:ShopItems)
+	for (auto Item : ShopItems)
 	{
-		//UE_LOG(ShopComponentLog, Warning, TEXT("%s: %d"), *Item.)
-		auto NewItem = BasicItemInfoTable->FindRow<FBasicInteractableItemInfo>(Item.ItemName, TEXT("Casting Shop Item to Base Interactable Item"), false);
+		//UE_LOG(ShopComponentLog, Warning, TEXT("%s: %d"), *Item.ItemName.ToString(), Item.InitAmount);
+		auto NewItem = BasicItemInfoTable->FindRow<FBasicInteractableItemInfo>(
+			Item.ItemName, TEXT("Casting Shop Item to Base Interactable Item"), false);
 		checkf(NewItem, TEXT("No Item Found: %s"), *Item.ItemName.ToString());
 		NewItem->CurrentAmount = Item.InitAmount;
 		RetItems.Add(*NewItem);
@@ -38,16 +40,18 @@ void UShopComponent::GetItems(TArray<FBasicInteractableItemInfo>& Items, TArray<
 	ShopItemInfo = ShopItems;
 }
 
-void UShopComponent::GetItemByType(TArray<FBasicInteractableItemInfo>& Items, TArray<FShopItemData>& ShopItemInfo, EItemType Type)
+void UShopComponent::GetItemByType(TArray<FBasicInteractableItemInfo>& Items, TArray<FShopItemData>& ShopItemInfo,
+                                   EItemType Type)
 {
 	TArray<FBasicInteractableItemInfo> RetItems;
 	TArray<FShopItemData> RetItemShopInfo;
-	for(auto Item:ShopItems)
+	for (auto Item : ShopItems)
 	{
-		auto NewItem = BasicItemInfoTable->FindRow<FBasicInteractableItemInfo>(Item.ItemName, TEXT("Casting Shop Item to Base Interactable Item"), false);
+		auto NewItem = BasicItemInfoTable->FindRow<FBasicInteractableItemInfo>(
+			Item.ItemName, TEXT("Casting Shop Item to Base Interactable Item"), false);
 		checkf(NewItem, TEXT("No Item Found"));
 		NewItem->CurrentAmount = Item.InitAmount;
-		if(NewItem->Type == Type)
+		if (NewItem->Type == Type)
 		{
 			RetItems.Add(*NewItem);
 			RetItemShopInfo.Add(Item);
@@ -60,9 +64,9 @@ void UShopComponent::GetItemByType(TArray<FBasicInteractableItemInfo>& Items, TA
 void UShopComponent::GetFavourite(TArray<FShopItemData>& FavouriteItem)
 {
 	TArray<FShopItemData> Favourites;
-	for(const auto Item:ShopItems)
+	for (const auto Item : ShopItems)
 	{
-		if(Item.bFavourite)
+		if (Item.bFavourite)
 		{
 			Favourites.Add(Item);
 		}
@@ -70,11 +74,11 @@ void UShopComponent::GetFavourite(TArray<FShopItemData>& FavouriteItem)
 	FavouriteItem = Favourites;
 }
 
-void UShopComponent::AddFavourite(const FShopItemData NewFavourite)
+void UShopComponent::AddFavourite(const FShopItemData& NewFavourite)
 {
-	for(auto& Item:ShopItems)
+	for (auto& Item : ShopItems)
 	{
-		if(Item.ItemName==NewFavourite.ItemName)
+		if (Item.ItemName == NewFavourite.ItemName)
 		{
 			Item.bFavourite = true;
 		}
@@ -82,13 +86,39 @@ void UShopComponent::AddFavourite(const FShopItemData NewFavourite)
 	
 }
 
-void UShopComponent::RemoveFavourite(const FShopItemData RemovedFavourite)
+void UShopComponent::RemoveFavourite(const FShopItemData& RemovedFavourite)
 {
-	for(auto& Item:ShopItems)
+	for (auto& Item : ShopItems)
 	{
-		if(Item.ItemName==RemovedFavourite.ItemName)
+		if (Item.ItemName == RemovedFavourite.ItemName)
 		{
 			Item.bFavourite = false;
+		}
+	}
+}
+
+void UShopComponent::Sell(const FShopItemData& SoldItemInfo)
+{
+	int i = -1;
+	for (auto& Item : ShopItems)
+	{
+		i++;
+		if (Item.ItemName == SoldItemInfo.ItemName)
+		{
+			if (Item.InitAmount >= 1)
+			{
+				Item.InitAmount--;
+				UE_LOG(ShopComponentLog, Warning, TEXT("minus one, Current Amount: %d"), Item.InitAmount);
+				if (Item.InitAmount == 0)
+				{
+					ShopItems.RemoveSingle(Item);
+				}
+				return;
+			}
+			else
+			{
+				return;
+			}
 		}
 	}
 }
@@ -98,7 +128,8 @@ void UShopComponent::InitShop()
 {
 	for (auto InitItem : InitItemMap)
 	{
-		UE_LOG(ShopComponentLog, Warning, TEXT("%s loading %s: %d"), *GetName(), *InitItem.Key.ToString(), InitItem.Value);
+		UE_LOG(ShopComponentLog, Warning, TEXT("%s loading %s: %d"), *GetName(), *InitItem.Key.ToString(),
+		       InitItem.Value);
 		auto NewShopItem = ShopItemInfoTable->FindRow<FShopItemData>(
 			InitItem.Key,
 			TEXT("Get Shop Item From Shop Table"),

@@ -56,7 +56,7 @@ enum class EItemType:uint8
 
 
 USTRUCT(BlueprintType)
-struct FBasicInteractableItemInfo: public FTableRowBase
+struct FBasicInteractableItemInfo : public FTableRowBase
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -65,7 +65,7 @@ struct FBasicInteractableItemInfo: public FTableRowBase
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="BasicInfo")
 	EItemType Type = EItemType::Consumable;
-	
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="BasicInfo")
 	FText ItemDescription = FText::FromString(FString("Description Error"));
 
@@ -74,7 +74,7 @@ struct FBasicInteractableItemInfo: public FTableRowBase
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Icon")
 	UTexture2D* ItemTextureBackpack = nullptr;
-	
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="DetectionInfo")
 	bool bDetectable = true;
 
@@ -89,7 +89,7 @@ struct FBasicInteractableItemInfo: public FTableRowBase
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="InBackpackInfo")
 	int32 CurrentAmount = 0;
-	
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="InBackpackInfo", meta=(EditCondition="bCanOverlay&&bPickable&&bDetectable"))
 	int32 MaxAmount = 99;
 };
@@ -133,7 +133,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ItemData")
 	UTexture2D* Texture;
-
 };
 
 //deprecated structure
@@ -156,7 +155,25 @@ struct FShopItemData : public FTableRowBase
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="ShopItem")
 	int32 Cost = 0;
-	
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ShopItem")
 	bool bFavourite = false;
+
+	bool operator==(const FShopItemData& AnotherShopItem) const
+	{
+		return ItemName == AnotherShopItem.ItemName;
+	}
+};
+
+
+USTRUCT(BlueprintType)
+struct FMyStruct: public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Val1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Val2;
 };
