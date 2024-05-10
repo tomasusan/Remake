@@ -35,7 +35,8 @@ public class Remake : ModuleRules
 			"Remake/Public/AI",
 			"Remake/Public/Shop",
 			"Remake/Public/FPG",
-			"Remake/Public/InteractiveActor"
+			"Remake/Public/InteractiveActor",
+			"Remake/Public/Tianya"
 		});
 
 		// Uncomment if you are using Slate UI

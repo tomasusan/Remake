@@ -26,6 +26,9 @@ private:
 	UPROPERTY()
 	UMainUserWidget* MainUserWidget;
 
+	UPROPERTY()
+	AFPGCharacter* Character;
+
 	UFUNCTION()
 	void OnShowItemHint() const;
 
@@ -34,9 +37,6 @@ private:
 
 	UFUNCTION()
 	void UpdateHintInfo();
-
-	UPROPERTY()
-	AFPGCharacter* Character;
 
 public:
 	void SwitchWidget();

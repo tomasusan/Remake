@@ -53,6 +53,11 @@ void ABaseShop::RemoveFavourite(FShopItemData RemovedFavourite)
 	ShopRepositoryComponent->RemoveFavourite(RemovedFavourite);
 }
 
+void ABaseShop::Sell(FShopItemData SoldItemInfo)
+{
+	ShopRepositoryComponent->Sell(SoldItemInfo);
+}
+
 // Called when the game starts or when spawned
 void ABaseShop::BeginPlay()
 {

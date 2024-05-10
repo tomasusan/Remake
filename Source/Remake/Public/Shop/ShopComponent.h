@@ -27,8 +27,9 @@ public:
 	void GetItemByType(TArray<FBasicInteractableItemInfo>& Items, TArray<FShopItemData>& ShopItemInfo, EItemType Type);
 
 	void GetFavourite(TArray<FShopItemData>& FavouriteItem);
-	void AddFavourite(const FShopItemData NewFavourite);
-	void RemoveFavourite(const FShopItemData RemovedFavourite);
+	void AddFavourite(const FShopItemData& NewFavourite);
+	void RemoveFavourite(const FShopItemData& RemovedFavourite);
+	void Sell(const FShopItemData& SoldItemInfo);
 
 protected:
 	// Called when the game starts

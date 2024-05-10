@@ -107,6 +107,10 @@ FBasicInteractableItemInfo AFPGCharacter::ReportDetectedItemInfo()
 	return RetVal;
 }
 
+void AFPGCharacter::MultiRetFunction(int32 InPara_1, int32 InPara_2, int32& Ret_1, int32& Ret_2, int32& Ret_3) const
+{
+}
+
 void AFPGCharacter::MoveForward(const float Val)
 {
 	AddMovementInput(GetActorForwardVector(), Val);

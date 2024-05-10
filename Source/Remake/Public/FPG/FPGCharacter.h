@@ -36,11 +36,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Component")
 	UBackpackComponent* BackpackComponent;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="DetectInfo")
-	float TraceDetectDistance = 100.0f;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Component")
 	UStaticMeshComponent* Sphere;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="DetectInfo")
+	float TraceDetectDistance = 100.0f;
 
 public:
 	// Called every frame
@@ -76,6 +76,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	int32 GetCurrentMoney() const { return CharacterInfo.CurrentMoney; }
+
+	UFUNCTION(BlueprintCallable)
+	void MultiRetFunction(int32 InPara_1, int32 InPara_2, int32& Ret_1, int32& Ret_2, int32& Ret_3) const;
 
 private:
 	void MoveForward(const float Val);
