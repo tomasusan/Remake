@@ -72,6 +72,11 @@ void UWeaponComponent::StopFire()
 	CurrentWeapon->StopFire();
 }
 
+void UWeaponComponent::SetCanFire(bool Ability)
+{
+	bCanFire = Ability;
+}
+
 void UWeaponComponent::AnimInit()
 {
 	if(!CurrentWeapon) return;
@@ -110,7 +115,7 @@ void UWeaponComponent::OnReload()
 
 bool UWeaponComponent::CanFire() const
 {
-	return !bInReloadAnimProgress;
+	return !bInReloadAnimProgress && bCanFire;
 }
 
 bool UWeaponComponent::CanReload() const

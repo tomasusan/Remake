@@ -167,6 +167,11 @@ void ABaseCharacter::OnDeath()
 	//GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 }
 
+void ABaseCharacter::SetCanFire(bool CanFire)
+{
+	WeaponComponent->SetCanFire(CanFire);
+}
+
 void ABaseCharacter::Fire()
 {
 }

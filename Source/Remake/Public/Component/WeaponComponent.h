@@ -21,6 +21,7 @@ public:
 	void Fire();
 	void StartFire();
 	void StopFire();
+	void SetCanFire(bool Ability);
 	ABaseWeapon* GetCurrentWeapon() const {return CurrentWeapon;}
 
 	FRelaodSignature ReLoadHandle;
@@ -43,6 +44,7 @@ private:
 	bool CanFire() const;
 	bool CanReload() const;
 	bool bInReloadAnimProgress = false;
+	bool bCanFire = true;
 	
 	UPROPERTY()
 	ABaseWeapon* CurrentWeapon = nullptr;

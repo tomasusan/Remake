@@ -84,6 +84,11 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+	virtual void OnDeath();
+
+	UFUNCTION(BlueprintCallable)
+	void SetCanFire(bool CanFire);
 
 private: //for function
 	void MoveForward(float Amount);
@@ -93,7 +98,6 @@ private: //for function
 	void OnStartSprint();
 	void OnStopSprint();
 	void OnJump();
-	void OnDeath();
 	void Fire();
 	void OnHealthChange(float Health) const;
 	void SetToken(const int32 SetAmount) { CurrentToken = SetAmount; }
